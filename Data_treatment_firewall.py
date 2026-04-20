@@ -28,7 +28,7 @@ while True:
 
     try:
 
-        client.head_object(Bucket = bucket, Key = "trusted/trusteFirewall.csv")
+        client.head_object(Bucket = bucket, Key = "trusted/trustedFirewall.csv")
             
     except ClientError as e:
 
@@ -36,16 +36,16 @@ while True:
 
         if e.response['Error']['Code'] == "404":
                     
-            with open ("trusteFirewall.csv","w",newline="") as f:
+            with open ("trustedFirewall.csv","w",newline="") as f:
                         
                 writer=csv.writer(f)
                 writer.writerow(headers)
 
-        client.upload_file("trusteFirewall.csv",bucket,"trusted/trusteFirewall.csv")
+        client.upload_file("trustedFirewall.csv",bucket,"trusted/trustedFirewall.csv")
         
-    if os.path.exists("trusteFirewall.csv"):
+    if os.path.exists("trustedFirewall.csv"):
 
-        os.remove("trusteFirewall.csv")
+        os.remove("trustedFirewall.csv")
 
     registros = []
 
@@ -105,20 +105,20 @@ while True:
     print(csvLinha)
 
 
-    csvS3 = client.get_object(Bucket = bucket, Key = "trusted/trusteFirewall.csv")
+    csvS3 = client.get_object(Bucket = bucket, Key = "trusted/trustedFirewall.csv")
     dados = csvS3["Body"].read().decode('utf-8')
 
-    with open ("trusteFirewall.csv","w",newline="") as f:
+    with open ("trustedFirewall.csv","w",newline="") as f:
                         
         f.write(dados)
 
-    with open ("trusteFirewall.csv","a",newline="") as f:
+    with open ("trustedFirewall.csv","a",newline="") as f:
                         
         writer=csv.writer(f)
         writer.writerow(csvLinha)
 
-    client.upload_file("trusteFirewall.csv",bucket,"trusted/trusteFirewall.csv")
+    client.upload_file("trustedFirewall.csv",bucket,"trusted/trustedFirewall.csv")
     
-    os.remove("trusteFirewall.csv")
+    os.remove("trustedFirewall.csv")
 
     time.sleep(180)

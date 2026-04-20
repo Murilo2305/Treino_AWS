@@ -32,7 +32,7 @@ while True:
                 
     except ClientError as e:
 
-        print("a")
+        print("Erro")
 
 
     res = client.get_object(Bucket = bucket, Key = "trusted/trustedAntena.csv")
@@ -85,7 +85,7 @@ while True:
 
     dados = sorted(dados,key = lambda x: x["prop"], reverse=True)
 
-    headers = ["datetime","Rank_antenas","cpu_por_rank","send_por_rank","recv_por_rank"]
+    headers = ["datetime","Rank_antenas","cpu_por_rank","send_por_rank","recv_por_rank","PvelSend","PvelRecv","Pdropins","Pdropouts","ActiveSessions","Topblock"]
 
     try:
 
@@ -119,9 +119,24 @@ while True:
         rankSend += f"{antena["send"]};"
         rankRecv += f"{antena["recv"]};"
 
-    csvline = [datetime.now().strftime("%Y-%m-%d_%H-%M"),rankAntenas,rankCpu, rankSend, rankRecv]
+    result = client.get_object(Bucket = bucket, Key = "trusted/trustedFirewall.csv")
 
-    with open("client.csv","a",newline="") as f:
+    with open("trustedFirewall.csv","w", newline= "") as f:
+
+        f.write(result["Body"].read().decode("utf-8"))
+
+    linha_firewall = []
+
+    with open("trustedFirewall.csv","r",newline="") as f:
+
+        leitor = csv.reader(f)
+        linha_firewall = list(leitor)[-1]
+
+    os.remove("trustedFirewall.csv")
+
+    csvline = [datetime.now().strftime("%Y-%m-%d_%H-%M"),rankAntenas,rankCpu, rankSend, rankRecv,linha_firewall[3],linha_firewall[4],linha_firewall[11],linha_firewall[12],linha_firewall[14],linha_firewall[15]]
+
+    with open ("client.csv","a",newline= "") as f:
 
         writer = csv.writer(f)
         writer.writerow(csvline)
