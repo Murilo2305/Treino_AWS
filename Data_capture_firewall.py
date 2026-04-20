@@ -16,9 +16,7 @@ client = boto3.client(
     aws_secret_access_key=os.getenv("aws_secret_access_key"),
     aws_session_token= os.getenv("aws_session_token")
 
-) 
-
-idAntena = "a1113"
+)
 
 while True:
 
@@ -30,10 +28,14 @@ while True:
     ByteSend2 = psutil.net_io_counters().bytes_sent
     ByteRecv2 = psutil.net_io_counters().bytes_recv
 
-    cons = random.randint(1,20)
-
     cpu = psutil.cpu_percent(interval=1, percpu=False)
     ram = psutil.virtual_memory().percent
+
+    activeSessions = len(psutil.pids())
+    dropins = psutil.net_io_counters().dropin
+    dropouts = psutil.net_io_counters().dropout
+
+    ips = {"123.456.789.10","123.456.789.11","123.456.789.12"}
 
     dados = {
 
@@ -41,17 +43,22 @@ while True:
         "ByteRecv" : round((ByteRecv2 - ByteRecv1)/5),
         "cpu" : cpu,
         "ram" : ram,
-        "cons" : cons
+        "ActiveSessions": activeSessions,
+        "dropins" : dropins,
+        "dropouts" : dropouts,
+        "topBlock" : random.choice(tuple(ips))
 
     }
 
     data = datetime.now()
-    nome = idAntena+"_"+data.strftime("%Y-%m-%d_%H-%M")+".json"
+    nome = "f_"+data.strftime("%Y-%m-%d_%H-%M")+".json"
 
     with open(nome,"w") as f:
         json.dump(dados,f,indent=4)
 
     client.upload_file(nome,os.getenv("bucket"),"raw/"+nome)
+
+    print(dados)
 
     os.remove(nome)
 
